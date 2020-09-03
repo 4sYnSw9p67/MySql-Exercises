@@ -1,0 +1,176 @@
+create database demo_tr;
+
+use demo_tr;
+
+create table passports (
+passport_id int primary key,
+passport_number varchar(10) unique
+);
+
+insert into passports
+values 
+(101, "N34FG21B"),
+(102, "K65LO4R7"),
+(103, "ZE657QP2");
+
+create table persons (
+person_id int auto_increment primary key,
+first_name varchar(17),
+salary decimal(10,2),
+passport_id int unique
+);
+
+alter table persons
+add constraint fk_persons_passports
+foreign key persons(passport_id)
+references passports(passport_id);
+
+insert into persons
+values 
+(1, "Roberto", 43300.00, 102),
+(2, "Tom", 56100.00, 103),
+(3, "Yana", 60200.00, 101);
+
+
+
+
+
+
+
+
+
+create table manufacturers (
+`manufacturer_id` int auto_increment primary key,
+`name` varchar(20),
+`established_on` date
+);
+
+insert into manufacturers (name, established_on)
+values 
+("BMW", "1916-03-01"),
+("Tesla", "2003-01-01"),
+("Lada", "1966-05-01");
+
+create table models (
+model_id int primary key,
+name varchar(20),
+manufacturer_id int,
+
+constraint fk_models_manufacturers
+foreign key (manufacturer_id)
+references manufacturers(manufacturer_id)
+);
+
+insert into models
+values
+(101, "X1", 1),
+(102, "i6", 1),
+(103, "Model S", 2),
+(104, "Model X", 2),
+(105, "Model 3", 2),
+(106, "Nova", 3);
+
+
+
+
+
+
+
+
+create database demo_trr;
+
+use demo_trr;
+
+create table students (
+student_id int primary key auto_increment,
+name varchar(30)
+);
+
+create table exams (
+exam_id int primary key,
+name varchar(30)
+);
+
+create table students_exams (
+student_id int,
+exam_id int,
+
+constraint pk_students_exams
+primary key (student_id, exam_id),
+
+constraint fk_students_exams_students
+foreign key (student_id)
+references students(student_id),
+
+constraint fk_students_exams_exams
+foreign key (exam_id)
+references exams(exam_id)
+);
+
+insert into students (name)
+values
+("Mila"),
+("Toni"),
+("Ron");
+
+insert into exams
+values
+(101, "Spring MVC"),
+(102, "Neo4j"),
+(103, "Oracle 11g");
+
+insert into students_exams
+values
+(1, 101),
+(1, 102),
+(2, 101),
+(3, 103),
+(2, 102),
+(2, 103);
+
+
+
+
+
+
+
+
+
+
+create table teachers (
+teacher_id int primary key,
+name varchar(20),
+manager_id int,
+
+constraint fk_teachers_teachers
+foreign key (manager_id)
+references teachers(teacher_id)
+);
+
+insert into teachers
+values
+(101, "John"),
+(102, "Maya", 106),
+(103, "Silvia", 106),
+(104, "Ted", 105),
+(105, "Mark", 101),
+(106, "Greta", 101);
+
+
+
+
+
+
+
+
+
+
+
+
+
+select mountain_range, peak_name, elevation as peak_elevation
+from mountains
+join peaks on
+peaks.mountain_id = mountains.id
+where mountain_range = "Rila"
+order by peak_elevation DESC;

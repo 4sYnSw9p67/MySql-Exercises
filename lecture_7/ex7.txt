@@ -1,0 +1,148 @@
+delimiter $$
+create procedure usp_get_employees_salary_above_35000()
+begin
+
+	select first_name, last_name
+	from employees as e
+	where salary > 35000
+	order by first_name, last_name, employee_id asc;
+
+
+end $$
+
+
+
+
+delimiter $$
+create procedure  usp_get_employees_salary_above(employee_salary decimal(19,4))
+begin
+
+	select first_name, last_name
+	from employees as e
+	where salary >= employee_salary
+	order by first_name, last_name, employee_id asc;
+
+
+end $$
+
+
+
+
+
+delimiter $$
+create procedure usp_get_towns_starting_with(search_term VARCHAR(35))
+begin
+
+	select name
+	from towns as t
+	where name like concat('%', search_term, '%')
+	order by name;
+
+
+end $$
+
+
+
+
+
+create procedure usp_get_employees_from_town(search_term VARCHAR(35))
+begin
+
+	select e.first_name, e.last_name
+	from employees as e
+join addresses as a 
+on e.address_id = a.address_id
+join towns as t
+on a.town_id = t.town_id
+where t.name = search_term
+order by e.first_name, e.last_name, e.employee_id;
+
+
+end
+
+
+
+
+delimiter $$
+create function ufn_get_salary_level(salary_emp decimal(19,4))
+returns varchar(10)
+deterministic
+begin
+
+	declare result varchar(10);
+
+	if salary_emp < 30000 then set result := 'Low';
+	elseif salary_emp between 30000 and 50000 then set result := 'Average';
+	else set result := 'High';
+	end if;
+    
+	return result;
+end $$
+
+
+
+
+
+delimiter $$
+create procedure usp_get_employees_by_salary_level(salary_level varchar(10))
+begin
+	select first_name, last_name
+    from employees
+    where lower(ufn_get_salary_level(salary)) = salary_level
+    order by first_name desc, last_name desc;
+end $$
+
+
+
+
+
+delimiter $$
+create procedure usp_get_holders_with_balance_higher_than(salary_level decimal)
+begin
+
+select ah.first_name, ah.last_name
+from account_holders as ah
+join accounts as a
+on a.account_holder_id = ah.id
+group by a.account_holder_id
+having sum(balance) > salary_level
+order by a.account_holder_id;
+
+end $$
+
+
+
+
+
+delimiter $$
+create procedure usp_deposit_money(account_id integer, money_amount decimal(19,4))
+begin
+
+	start transaction;
+    if (money_amount <= 0) 
+		then rollback;
+    else
+		update accounts
+		set balance = balance + money_amount
+		where id = account_id;
+    end if;
+    
+end $$
+
+
+
+
+delimiter $$
+create procedure usp_withdraw_money(account_id integer, money_amount decimal(19,4))
+begin
+
+	start transaction;
+    if (money_amount <= 0 AND (balance - money_amount) < 0) 
+		then rollback;
+    else
+		update accounts
+		set balance = balance - money_amount
+		where id = account_id;
+    end if;
+    
+end $$

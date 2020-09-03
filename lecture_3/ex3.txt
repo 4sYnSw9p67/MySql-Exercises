@@ -1,0 +1,102 @@
+select `first_name`, `last_name`
+from employees
+where `first_name` like 'Sa%'
+order by `employee_id`;
+
+select `first_name`, `last_name`
+from employees
+where `last_name` like '%ei%'
+order by `employee_id`;
+
+select `first_name`
+from employees
+where department_id in (3, 10) AND extract(year from `hire_date`) between 1995 and 2005;
+
+select `first_name`, `last_name`
+where `job_title` not like '%engineer%'
+order by employee_id;
+
+select name
+from towns
+where char_length(name) in (5,6)
+  order by name asc;
+
+
+  select `first_name`, `last_name`
+  from employees
+where `job_title` not like '%engineer%'
+  order by `employee_id`;
+  
+
+select town_id, name
+from towns
+where substring(name,1,1) in ("M", "K", "B", "E")
+  order by name asc;
+  
+  
+select town_id, name
+from towns
+where substring(name,1,1) not in ("R", "B", "D")
+  order by name asc;
+  
+  CREATE VIEW `v_employees_hired_after_2000` AS 
+SELECT 
+    `first_name`,`last_name`
+FROM `employees` 
+WHERE extract(year from `hire_date`) > 2000;
+  
+  
+    select `first_name`, `last_name`
+  from employees
+where char_lenght(`last_name`) = 5 ;
+
+
+select country_name, iso_code
+from countries
+where country_name like '%a%a%a%'
+order by iso_code asc;
+
+
+select peak_name, river_name,
+concat(lower(peak_name), replace(lower(river_name), lower(left(river_name, 1)), '')) as 'mix'
+FROM peaks, rivers 
+where lower(right(peak_name, 1)) = lower(left(river_name, 1))
+order by mix ASC;
+  
+select name, DATE_FORMAT(start, '%Y-%m-%d') as 'start'
+from games
+where extract(year from start) in (2011, 2012)
+order by start ASC;
+
+  
+select user_name, SUBSTRING_INDEX(email, '@', -1) as 'Email Provider'
+FROM users
+order by SUBSTRING_INDEX(email, '@', -1), user_name ASC;
+
+
+
+select name as game, 
+    (
+    CASE 
+        WHEN SUBSTRING(`start`, 12, 2) >= 0 && SUBSTRING(`start`, 12, 2) < 12 THEN 'Morning'
+        WHEN SUBSTRING(`start`, 12, 2) >= 12 && SUBSTRING(`start`, 12, 2) < 18 THEN 'Afternoon'
+        WHEN SUBSTRING(`start`, 12, 2) >= 18 && SUBSTRING(`start`, 12, 2) < 24 THEN 'Evening'
+        ELSE 1
+    END) AS 'Part of the Day',
+    (
+    CASE 
+        WHEN `duration` <= 3 THEN 'Extra Short'
+        WHEN `duration` > 3 && `duration` <=6 THEN 'Short'
+        WHEN `duration` > 6 && `duration` <=10 THEN 'Long'
+        ELSE 'Extra Long'
+    END) AS 'Duration'
+ from games;
+ 
+ 
+ 
+ select product_name, order_date, 
+date_add(order_date, interval 3 day) as pay_due,
+date_add(order_date, interval 1 month) as deliver_date
+from orders;
+
+

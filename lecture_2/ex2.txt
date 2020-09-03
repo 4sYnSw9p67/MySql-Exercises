@@ -1,0 +1,145 @@
+CREATE TABLE `directors` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `director_name` VARCHAR(45) NOT NULL,
+  `notes` TEXT(255) NULL,
+  PRIMARY KEY (`id`));
+  
+  CREATE TABLE `genres` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `genre_name` VARCHAR(45) NOT NULL,
+  `notes` TEXT(255) NULL,
+  PRIMARY KEY (`id`));
+  
+  CREATE TABLE `movies` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(45) NOT NULL,
+  `director_id` INT NOT NULL,
+  `copyright_year` YEAR(4) NULL,
+  `length` INT NULL,
+  `genre_id` INT NOT NULL,
+  `category_id` INT NOT NULL,
+  `rating` INT NULL,
+  `notes` TEXT(255) NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_movies_directors_idx` (`director_id` ASC) VISIBLE,
+  INDEX `fk_movies_genres_idx` (`genre_id` ASC) VISIBLE,
+  INDEX `fk_movies_categories_idx` (`category_id` ASC) VISIBLE,
+  CONSTRAINT `fk_movies_directors`
+    FOREIGN KEY (`director_id`)
+    REFERENCES `directors` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_movies_genres`
+    FOREIGN KEY (`genre_id`)
+    REFERENCES `genres` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_movies_categories`
+    FOREIGN KEY (`category_id`)
+    REFERENCES `categories` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+INSERT INTO `categories`
+(`id`,
+`category_name`,
+`notes`)
+VALUES
+(1, 'Action', 'blabla'),
+(2, 'Adventure', 'blabla'),
+(3, 'Comedy', 'blabla'),
+(4, 'Drama', 'blabla'),
+(5, 'ScyFi', 'blabla');
+
+INSERT INTO `directors`
+(`id`,
+`director_name`,
+`notes`)
+VALUES
+(1, 'Joe Doe', 'bla'),
+(2, 'Joee Doe', 'bla'),
+(3, 'Joeee Doe', 'bla'),
+(4, 'Joeeee Doe', 'bla'),
+(5, 'Joeeeee Doe', 'bla');
+
+INSERT INTO `genres`
+(`id`,
+`genre_name`,
+`notes`)
+VALUES
+(1, 'Action_', 'blabla'),
+(2, 'Adventure_', 'blabla'),
+(3, 'Comedy_', 'blabla'),
+(4, 'Drama_', 'blabla'),
+(5, 'ScyFi_', 'blabla');
+
+INSERT INTO `movies`
+(`id`,
+`title`,
+`director_id`,
+`copyright_year`,
+`length`,
+`genre_id`,
+`category_id`,
+`rating`,
+`notes`)
+VALUES
+(1, 'BlaBla', 1, '2020', 167, 1, 1, 10, 'blaaaa'),
+(2, 'BlaBlaa', 2, '2020', 167, 2, 2, 10, 'blaaaa'),
+(3, 'BlaBlaaa', 3, '2020', 167, 3, 3, 10, 'blaaaa'),
+(4, 'BlaBlaaaa', 4, '2020', 167, 4, 4, 10, 'blaaaa'),
+(5, 'BlaBlaaaaa', 5, '2020', 167, 5, 5, 10, 'blaaaa');
+	
+
+
+
+UPDATE employees 
+SET 
+    salary = salary * 1.12
+WHERE (LOCATE('Engineering', job_title)
+        OR LOCATE('Tool Design', job_title)
+        OR LOCATE('Marketing', job_title)
+        OR LOCATE('Information Services', job_title));
+
+SELECT 
+    salary
+FROM
+    employees;
+
+
+
+
+
+UPDATE employees 
+SET 
+    salary = salary * 1.12
+WHERE job_title LIKE '%Engineering%'
+       OR job_title LIKE '%Tool\ Design%'
+        OR job_title LIKE '%Marketing%'
+        OR job_title LIKE '%Information\ Services%';
+
+        SELECT 
+    salary
+FROM
+    employees;
+
+
+
+
+
+UPDATE employees 
+SET 
+    salary = salary * 1.12
+WHERE job_title REGEXP 'Engineering'
+       OR job_title REGEXP 'Tool\ Design'
+        OR job_title REGEXP 'Marketing'
+        OR job_title REGEXP 'Information\ Services';
+
+        SELECT 
+    salary
+FROM
+    employees;
+
+
+	

@@ -1,0 +1,153 @@
+insert into likes (article_id, comment_id, user_id)
+select 
+if(u.id % 2 = 0, char_length(u.username), null),
+if(u.id % 2 = 1, char_length(u.email), null),
+u.id
+from users as u
+where u.id between 16 and 20;
+
+
+
+update comments as c
+set comment = (
+	case
+		when c.id % 2 = 0 then 'Very good article.'
+		when c.id % 3 = 0 then 'This is interesting.'
+		when c.id % 5 = 0 then 'I definitely will read the article again.'
+		when c.id % 7 = 0 then 'The universe is such an amazing thing.'
+		else c.comment
+	end
+)
+where c.id between 1 and 15;
+
+
+
+delete from articles 
+where category_id is null;
+
+
+
+
+
+
+
+select nt.title, nt.summary
+from 
+(	
+	select a.id, a.title, 
+		concat(left(a.content, 20), '...') as summary
+	from articles as a
+	order by char_length(a.content) desc
+	limit 3
+) as nt
+order by nt.id;
+
+
+
+select a.id, a.title 
+from articles as a
+join users_articles as ua
+on a.id = ua.article_id
+where ua.user_id = ua.article_id
+order by a.id;
+
+
+
+select c.category, count(distinct a.id) as 'a_count', count(l.id) as 'l_count'
+from categories as c
+left join articles as a
+on c.id = a.category_id
+left join likes as l
+on a.id = l.article_id
+group by c.category
+order by `l_count` desc, `a_count` desc, c.id;
+
+
+
+select a.title, count(com.id) as 'c_count'
+from articles as a
+join categories as c
+on c.id = a.category_id
+join comments as com
+on com.article_id = a.id
+where c.category = 'Social'
+group by a.id
+order by `c_count` desc
+limit 1;
+
+
+
+SELECT concat(LEFT(c.comment, 20), '...') AS 'summary' 
+FROM comments AS c 
+LEFT JOIN likes AS l 
+ON c.id = l.comment_id 
+WHERE l.comment_id IS NULL 
+ORDER BY c.id DESC;
+
+
+
+
+
+
+CREATE FUNCTION udf_users_articles_count(p_username VARCHAR(30)) 
+RETURNS INT 
+DETERMINISTIC 
+BEGIN 
+	DECLARE result INT; 
+	SET result := ( 
+	SELECT count(ua.article_id) 
+	FROM users articles AS ua 
+	RIGHT JOIN users AS u 
+	ON u.id = ua.user_id 
+	WHERE u.username = p_username 
+	); 
+	RETURN result; 
+END 
+
+
+
+
+
+
+
+delimiter $$
+create procedure udp_like_article(p_username varchar(30), p_title varchar(30))
+begin
+if ((SELECT count(*) FROM users AS u WHERE u.username = p_username) = 0) THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Non-existent user.'; ROLLBACK; ELSEIF ((SELECT count(*) FROM articles AS a WHERE a.title = p_title) = 0) THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Non-existent article.'; ROLLBACK; ELSE INSERT INTO likes(article_id, comment_id, user_id) SELECT (SELECT id FROM articles WHERE title = 'Na Pesho statiqta'), NULL, (SELECT id FROM users WHERE username = 'BlaAntigadsa'); END IF; 
+END 
+
+
+delimiter $$
+create procedure udp_like_article(p_username varchar(30), p_title varchar(30))
+begin
+	if ((SELECT count(*) 
+		FROM users AS u 
+		WHERE u.username = p_username) = 0) 
+		THEN SIGNAL SQLSTATE '45000' 
+		SET MESSAGE_TEXT = 'Non-existent user.'; 
+    ROLLBACK; 
+    
+    ELSEIF ((
+		SELECT count(*) 
+		FROM articles AS a 
+		WHERE a.title = p_title) = 0) 
+		THEN SIGNAL SQLSTATE '45000' 
+		SET MESSAGE_TEXT = 'Non-existent article.'; 
+    ROLLBACK; 
+    
+    ELSE INSERT INTO likes(article_id, comment_id, user_id) 
+		SELECT (
+		SELECT id 
+		FROM articles 
+		WHERE title = 'Na Pesho statiqta'), 
+		NULL, (
+		SELECT id 
+		FROM users 
+		WHERE username = 'BlaAntigadsa'); 
+    END IF; 
+END $$
+
+
+CREATE PROCEDURE udp like article(p usernase VARCUAR(10), p title VARCHAR(40)) nrGiN 
+if ((SEIM count(*) FROM users AS u WHERE thusername = p username) = 0) THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT - 'Nun existent user.'; ROLLBACK; F1SFIF ((SFIECT count(*) FROM articles. AS a WHERE a.title = p_title) = 0) THEN SIGNAL SQLSTATE *issear SET MESSAGE TEXT - *Non existent article.'; 11011BACK; EISE INSERT INTO likes(articie_id, cumentid, user_id) SELECT (SELECT id FROM articles WERE title = p_title), NULL, (SEIM id FROM users WHERE username = p username); END TF; 
+END 

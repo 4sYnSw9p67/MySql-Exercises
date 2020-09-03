@@ -1,0 +1,236 @@
+CREATE TABLE `gamebar`.`employees` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `first_name` VARCHAR(45) NOT NULL,
+  `last_name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`));
+
+
+INSERT INTO `gamebar`.`employees` (`id`, `first_name`, `last_name`) VALUES ('1', 'Pesho', 'Peshev');
+
+CREATE SCHEMA `minions` ;
+
+CREATE TABLE `minions` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `age` INT NULL,
+  PRIMARY KEY (`id`));
+
+CREATE TABLE `towns` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(45) NOT NULL, 
+	  PRIMARY KEY (`id`));
+
+
+
+ALTER TABLE `minions`.`minions` 
+ADD COLUMN `town_id` INT NOT NULL AFTER `age`;
+
+
+
+ALTER TABLE `minions`.`minions` 
+ADD INDEX `fk_minions_towns_idx` (`town_id` ASC) VISIBLE;
+;
+ALTER TABLE `minions`.`minions` 
+ADD CONSTRAINT `fk_minions_towns`
+  FOREIGN KEY (`town_id`)
+  REFERENCES `minions`.`towns` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+
+INSERT INTO `towns` (`id`, `name`)
+VALUES (1, 'Sofia'),
+ (2, 'Plovdiv'),
+ (3, 'Varna');
+
+INSERT INTO `minions` (`id`, `name`, `age`, `town_id`)
+VALUES (1, 'Kevin', 22, 1),
+ (2, 'Bob', 15, 3),
+ (3, 'Steward', NULL, 2);
+
+
+
+TRUNCATE `minions`;
+
+
+DROP TABLE `minions`, `towns`;
+
+
+CREATE TABLE `minions`.`people` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` TEXT(200) NOT NULL,
+  `picture` BLOB NULL,
+  `height` DECIMAL(3,2) NULL,
+  `weight` DECIMAL(5,2) NULL,
+  `gender` CHAR(1) NOT NULL,
+  `birthdate` DATE NOT NULL,
+  `biography` LONGTEXT NULL,
+  PRIMARY KEY (`id`));
+
+INSERT INTO `minions`.`people` (`id`, `name`, `height`, `weight`, `gender`, `birthdate`, `biography`) VALUES ('1', 'Bob', '1.83', '123', 'm', '2000-01-12', 'blabla');
+INSERT INTO `minions`.`people` (`id`, `name`, `height`, `weight`, `gender`, `birthdate`, `biography`) VALUES ('2', 'Nancy', '1.73', '64', 'f', '1999-02-14', 'bla');
+INSERT INTO `minions`.`people` (`id`, `name`, `height`, `weight`, `gender`, `birthdate`, `biography`) VALUES ('3', 'Freddy', '1.95', '145', 'm', '1997-03-16', 'blablablabla');
+INSERT INTO `minions`.`people` (`id`, `name`, `height`, `weight`, `gender`, `birthdate`, `biography`) VALUES ('4', 'Bo', '1.83', '123', 'm', '2000-01-12', 'blabla');
+INSERT INTO `minions`.`people` (`id`, `name`, `height`, `weight`, `gender`, `birthdate`, `biography`) VALUES ('5', 'Fred', '1.95', '145', 'm', '1997-03-16', 'blablablabla');
+
+SELECT * FROM minions.people;
+
+
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `username` varchar(30) NOT NULL,
+  `password` varchar(26) NOT NULL,
+  `profile_picture` mediumblob,
+  `last_login_time` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `is_deleted` BOOLEAN,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username_UNIQUE` (`username`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB;
+
+INSERT INTO `users` (`id`, `username`, `password`) VALUES ('1', 'flubl', 'blubl');
+('2', 'flubll', 'blubll'),
+('3', 'flublll', 'blublll'),
+('4', 'flubllll', 'blubllll'),
+('5', 'flublllll', 'blublllll');
+
+SELECT * FROM users;
+
+
+
+
+CREATE TABLE `towns` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `PK_Towns` (`id`)
+) ENGINE=InnoDB;
+
+CREATE TABLE `addresses` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `address_text` varchar(100) NOT NULL,
+  `town_id` int(10) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `PK_Addresses` (`id`),
+  KEY `fk_addresses_towns` (`town_id`),
+  CONSTRAINT `fk_addresses_towns` FOREIGN KEY (`town_id`) REFERENCES `towns` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `departments` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `PK_Departments` (`id`)
+) ENGINE=InnoDB;
+
+CREATE TABLE `employees` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(50) NOT NULL,
+  `middle_name` varchar(50) DEFAULT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `job_title` varchar(50) NOT NULL,
+  `department_id` int(10) NOT NULL,
+  `hire_date` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `salary` decimal(19,4) NOT NULL,
+  `address_id` int(10) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `PK_Employees` (`id`),
+  KEY `fk_employees_departments` (`department_id`),
+  KEY `fk_employees_addresses` (`address_id`),
+  CONSTRAINT `fk_employees_addresses` FOREIGN KEY (`address_id`) REFERENCES `addresses` (`id`),
+  CONSTRAINT `fk_employees_departments` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`)
+) ENGINE=InnoDB;
+
+
+
+INSERT INTO `towns`
+(`id`, `name`)
+VALUES
+(1, 'Sofia'),
+(2, 'Plovdiv'),
+(3, 'Varna'),
+(4, 'Burgas');
+
+
+INSERT INTO `departments`
+(`id`, `name`)
+VALUES
+(1, 'Engineering'),
+(2, 'Sales'),
+(3, 'Marketing'),
+(4, 'Software Development'),
+(5, 'Quality Assurance');
+
+
+INSERT INTO `employees`
+(`id`, `first_name`, `middle_name`, `last_name`, `job_title`, `department_id`, `hire_date`, `salary`)
+VALUES
+(1, 'Ivan', 'Ivanov', 'Ivanov', '.NET Developer', 4, '2013-02-01', 3500.00),
+(2, 'Petar', 'Petrov', 'Petrov', 'Senior Engineer', 1, '2004-03-02', 4000.00),
+(3, 'Maria', 'Petrova', 'Ivanova', 'Intern', 5, '2016-08-28', 525.25),
+(4, 'Georgi', 'Terziev', 'Ivanov', 'CEO', 2, '2007-12-09', 3000.00),
+(5, 'Peter', 'Pan', 'Pan', 'Intern', 3, '2016-08-28', 599.88);
+
+
+
+ALTER TABLE `gamebar`.`users` 
+CHANGE COLUMN `last_login_time` `last_login_time` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) ;
+
+
+
+
+
+  ALTER TABLE `users` 
+DROP PRIMARY KEY,
+ADD CONSTRAINT pk_users
+PRIMARY KEY (`id`, `username`);
+
+
+
+
+
+  ALTER TABLE `users` 
+DROP PRIMARY KEY, 
+ADD PRIMARY KEY (`id`),
+ADD CONSTRAINT `pk_users`
+ UNIQUE KEY `username_UNIQUE` (`username`);
+
+
+
+
+
+
+
+
+
+
+INSERT INTO `towns`
+(`id`, `name`)
+VALUES
+(1, 'Sofia'),
+(2, 'Plovdiv'),
+(3, 'Varna'),
+(4, 'Burgas');
+
+
+INSERT INTO `departments`
+(`id`, `name`)
+VALUES
+(1, 'Engineering'),
+(2, 'Sales'),
+(3, 'Marketing'),
+(4, 'Software Development'),
+(5, 'Quality Assurance');
+
+
+INSERT INTO `employees`
+(`id`, `first_name`, `middle_name`, `last_name`, `job_title`, `department_id`, `hire_date`, `salary`)
+VALUES
+(1, 'Ivan', 'Ivanov', 'Ivanov', '.NET Developer', 4, '2013-02-01', 3500.00),
+(2, 'Petar', 'Petrov', 'Petrov', 'Senior Engineer', 1, '2004-03-02', 4000.00),
+(3, 'Maria', 'Petrova', 'Ivanova', 'Intern', 5, '2016-08-28', 525.25),
+(4, 'Georgi', 'Terziev', 'Ivanov', 'CEO', 2, '2007-12-09', 3000.00),
+(5, 'Peter', 'Pan', 'Pan', 'Intern', 3, '2016-08-28', 599.88);
+
+

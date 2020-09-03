@@ -1,0 +1,160 @@
+create schema ruk_database;
+
+create table branches (
+id int(11) primary key auto_increment,
+name varchar(30) not null unique
+);
+
+create table employees (
+id int(11) primary key auto_increment,
+first_name varchar(20) not null,
+last_name varchar(20) not null,
+salary decimal(10,2) not null,
+started_on date not null,
+branch_id int(11) not null,
+
+constraint fk_employees_branches
+foreign key (branch_id) 
+references branches(id)
+);
+
+create table clients (
+id int(11) primary key auto_increment,
+full_name varchar(50) not null,
+age int(11) not null
+);
+
+create table employees_clients (
+employee_id int(11),
+client_id int(11),
+
+constraint fk_ec_employees
+foreign key (employee_id)
+references employees(id),
+
+constraint fk_ec_clients
+foreign key (client_id)
+references clients(id)
+);
+
+
+
+create table bank_accounts (
+id int(11) primary key auto_increment,
+account_number varchar(10) not null,
+balance decimal(10,2) not null,
+client_id int(11) not null unique,
+
+constraint fk_ba_clients
+foreign key (client_id)
+references clients(id)
+);
+
+
+create table cards (
+id int(11) primary key auto_increment,
+card_number varchar(19) not null,
+card_status varchar(7) not null,
+bank_account_id int(11) not null,
+
+constraint fk_cards_ba
+foreign key (bank_account_id)
+references bank_accounts(id)
+);
+
+
+
+
+
+
+
+
+
+
+insert into cards (card_number, card_status, bank_account_id)
+(
+select reverse(full_name), 'Active', id
+from clients
+where id between 191 and 200
+);
+
+{{{insert into cards (card_number, card_status, bank_account_id)
+(
+select reverse(full_name), 
+	(case 
+	when id between 191 and 200 then 'Active'
+	when id between 191 and 200 then 'Active'
+	when id between 191 and 200 then 'Active'
+	END) as custom_status, id
+from clients
+where id between 191 and 1000
+);}}}
+
+
+
+
+
+
+
+
+
+
+update employees_clients as ec
+set ec.employee_id = 
+(
+	select ecc.employee_id from (select * from employees_clients) as ecc
+	group by employee_id
+	order by count(ecc.client_id) asc, ecc.employee_id asc
+	limit 1
+)
+where ec.employee_id = ec.client_id;
+
+
+
+
+
+
+
+
+
+
+delete emp from employees as emp
+left join employees_clients as ec
+on ec.employee_id = emp.id
+where ec.client_id is null;
+
+delete from employees where id = 
+(
+select emp.id from (select * from employees) as emp
+left join employees_clients as ec
+on ec.employee_id = emp.id
+where ec.client_id is null
+limit 1
+);
+
+
+
+
+
+
+
+
+
+
+select concat(first_name, ' ', last_name), started_on,
+count(ec.client_id) as cnt
+from employees as emp
+left join employees_clients as ec
+on ec.employee_id = emp.id
+group by ec.employee_id
+order by cnt desc, emp.id asc limit 5;
+
+
+
+
+
+
+
+
+
+

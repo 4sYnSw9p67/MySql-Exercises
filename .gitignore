@@ -1,0 +1,9 @@
+*
+
+!.gitignore
+!lecture*
+!Exam*
+
+!*.txt
+!*.sql
+!*.zip

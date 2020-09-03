@@ -1,0 +1,260 @@
+chavdar.mitkov@softuni.bg
+
+SECTION 1: TABLE DESIGN
+-----------------------
+
+create schema fsd;
+
+create table countries (
+id int primary key auto_increment,
+name varchar(45) not null
+);
+
+
+create table towns (
+id int primary key auto_increment,
+name varchar(45) not null,
+country_id int not null,
+
+constraint fk_towns_countries
+foreign key (country_id)
+references countries(id)
+);
+
+
+create table stadiums (
+id int primary key auto_increment,
+name varchar(45) not null,
+capacity int not null,
+town_id int not null,
+
+constraint fk_stadiums_towns
+foreign key (town_id)
+references towns(id)
+);
+
+
+create table teams (
+id int primary key auto_increment,
+name varchar(45) not null,
+established date not null,
+fan_base bigint not null default 0,
+stadium_id int not null,
+
+constraint fk_teams_stadiums
+foreign key (stadium_id)
+references stadiums(id)
+);
+
+
+create table coaches (
+id int primary key auto_increment,
+first_name varchar(10) not null,
+last_name varchar(20) not null,
+salary decimal(10,2) not null default 0,
+coach_level int not null default 0
+);
+
+
+create table skills_data (
+id int primary key auto_increment,
+dribbling int default 0,
+pace int default 0,
+passing int default 0,
+shooting int default 0,
+speed int default 0,
+strength int default 0
+);
+
+
+create table players (
+id int primary key auto_increment,
+first_name varchar(10) not null,
+last_name varchar(20) not null,
+age int not null default 0,
+position char(1) not null,
+salary decimal(10,2) not null default 0,
+hire_date datetime null,
+skills_data_id int not null,
+team_id int null,
+
+constraint fk_players_skills_data
+foreign key (skills_data_id)
+references skills_data(id),
+
+constraint fk_players_teams
+foreign key (team_id)
+references teams(id)
+);
+
+
+create table players_coaches (
+player_id int,
+coach_id int,
+
+constraint fk_players_coaches_players
+foreign key (player_id)
+references players(id),
+
+constraint fk_players_coaches_coaches
+foreign key (coach_id)
+references coaches(id)
+);
+
+
+
+
+SECTION 2: DML
+--------------
+
+Ex. 2
+-----
+
+insert into coaches 
+(first_name, last_name, salary, coach_level)
+select p.first_name, p.last_name, (p.salary * 2) as coach_salary, char_length(p.first_name)
+from players as p;
+
+
+Ex. 3
+-----
+
+
+
+
+Ex. 4
+-----
+
+delete from coaches
+where id > 10;
+
+
+SECTION 3: Querying 
+-------------------
+
+Ex. 5
+-----
+
+select first_name, age, salary
+from players
+order by salary desc;
+
+
+Ex. 6
+-----
+
+select p.id, concat(p.first_name, ' ', p.last_name) as full_name, p.age, p.position, p.hire_date
+from players as p
+join skills_data as sd
+on p.skills_data_id = sd.id
+where p.age <= 23 and p.position = 'A' and p.hire_date is null and sd.strength > 50
+order by p.salary, p.age;
+
+
+Ex. 7
+-----
+
+select t.name as team_name, t.established, t.fan_base, count(p.id) as players_count
+from teams as t
+left outer join players as p
+on t.id = p.team_id
+group by t.id
+order by players_count desc, fan_base desc;
+
+
+Ex. 8
+-----
+
+BAD!!
+select sd.speed as max_speed, tw.name as town_name
+from skills_data as sd
+left join players as p
+on sd.id = p.skills_data_id
+left join teams as t
+on p.team_id = t.id
+left join stadiums st
+on t.stadium_id = st.id
+left join towns as tw
+on st.town_id = tw.id
+where t.name <> 'Devify'
+order by sd.speed desc, town_name asc;
+-----
+OK!!
+select sd.speed as max_speed , (distinct tw.name) as town_name
+from towns as tw
+left join stadiums as st
+on tw.id = st.town_id
+left join teams as t
+on st.id = t.stadium_id
+left join players as p
+on t.id = p.team_id
+left join skills_data as sd
+on p.skills_data_id = sd.id
+where t.name <> 'Devify'
+order by sd.speed desc, town_name asc;
+
+
+Ex. 9
+-----
+
+select ctr.name, count(p.id) as total_count_of_players, 
+sum(p.salary) as total_sum_of_salaries
+from countries as ctr
+left join towns as tw
+on ctr.id = tw.country_id
+left join stadiums as st
+on tw.id = st.town_id
+left join teams as t
+on st.id = t.stadium_id
+left join players as p
+on t.id = p.team_id
+group by ctr.id   
+order by total_count_of_players desc, ctr.name asc;
+
+
+
+
+SECTION 4: Programmability 
+--------------------------
+
+Ex. 10
+------
+
+CREATE FUNCTION `udf_stadium_players_count`(stadium_name VARCHAR(30)) 
+RETURNS INT
+DETERMINISTIC
+BEGIN
+	DECLARE result INT;
+    SET result := (
+		select count(p.id) as count
+		from stadiums as st
+		left join teams as t
+		on st.id = t.stadium_id
+		left join players as p
+		on t.id = p.team_id
+		where st.name = stadium_name
+		group by st.id   
+    );
+	RETURN result;
+END
+
+
+Ex. 11
+------
+
+create procedure udp_find_playmaker(min_dribble_points INT, team_name varchar(45))
+
+begin
+	(select concat(p.first_name, ' ', p.last_name) as full_name), p.age, p.salary,
+	sd.dribbling, sd.speed, t.name as team_name
+	from players as p
+	join skills_data as sd
+	on p.skills_data_id = sd.id
+	join teams as t
+	on p.team_id = t.id
+	where sd.dribbling > min_dribble_points and t.name = team_name
+	order by sd.speed desc
+	limit 1
+	);
+	
+end
