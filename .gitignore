@@ -2,8 +2,10 @@
 
 !.gitignore
 !lecture*
+!lecture*/Resouces
 !Exam*
 
 !*.txt
 !*.sql
 !*.zip
+!*.png
