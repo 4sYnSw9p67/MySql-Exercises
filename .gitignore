@@ -3,7 +3,7 @@
 !.gitignore
 !lecture*
 !Exam*
-!Resources/*
+!lecture*/Resources/*
 
 
 !*.txt
